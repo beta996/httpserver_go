@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	uuid "github.com/satori/go.uuid"
 	"log"
 	"net"
 	"net/http"
@@ -17,7 +18,9 @@ func main() {
 	server1 := &http.Server{Addr: ":3333",
 		Handler: mux,
 		BaseContext: func(l net.Listener) context.Context {
+
 			ctx = context.WithValue(ctx, keyServerAddr, l.Addr().String())
+			ctx = context.WithValue(ctx, "uuid", uuid.NewV4().String())
 			return ctx
 		}}
 	server2 := &http.Server{
@@ -57,7 +60,7 @@ func getHello(writer http.ResponseWriter, request *http.Request) {
 	ctx := request.Context()
 
 	fmt.Printf("%s: got /hello request\n", ctx.Value(keyServerAddr))
-	//fmt.Println(writer)
+	fmt.Printf(ctx.Value("uuid").(string))
 	fmt.Fprintf(writer, "Hello response")
 
 }
